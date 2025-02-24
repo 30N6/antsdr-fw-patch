@@ -1,6 +1,11 @@
 target=$1
 
+cp -r ./hdl ./plutosdr-fw/hdl/library/
+cp -r ./hdl/e200_pluto_ecm ./plutosdr-fw/hdl/projects/
+
 cp ./patch/*v0.39.patch ./plutosdr-fw/hdl
+cp ./patch/*patch_adi_project_xilinx.patch ./plutosdr-fw/hdl
+
 cp ./patch/${target}/*linux.patch	./plutosdr-fw/linux
 cp ./patch/${target}/*buildroot.patch	./plutosdr-fw/buildroot
 cp ./patch/${target}/*scripts.patch ./plutosdr-fw/
@@ -59,4 +64,3 @@ rm -rf *.patch
 cd ../
 
 echo "patch finish"
-
