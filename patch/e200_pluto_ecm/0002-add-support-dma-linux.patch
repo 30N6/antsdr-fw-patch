@@ -1,0 +1,98 @@
+diff --git a/arch/arm/boot/dts/zynq-e200.dtsi b/arch/arm/boot/dts/zynq-e200.dtsi
+index f123605e5d90..d77a198e337c 100644
+--- a/arch/arm/boot/dts/zynq-e200.dtsi
++++ b/arch/arm/boot/dts/zynq-e200.dtsi
+@@ -181,6 +181,60 @@ dma-channel@0 {
+ 			};
+ 		};
+ 
++                custom_dma_d2h: dma@7c450000 {
++                        compatible = "adi,axi-dmac-1.00.a";
++                        reg = <0x7c450000 0x1000>;
++                        #dma-cells = <1>;
++                        interrupts = <0 53 IRQ_TYPE_LEVEL_HIGH>;
++                        clocks = <&clkc 16>;
++
++                        adi,channels {
++                                #size-cells = <0>;
++                                #address-cells = <1>;
++
++                                dma-channel@0 {
++                                        reg = <0>;
++                                        adi,source-bus-width = <16>;
++                                        adi,source-bus-type = <1>;
++                                        adi,destination-bus-width = <64>;
++                                        adi,destination-bus-type = <0>;
++                                };
++                        };
++                };
++
++                custom_dma_h2d: dma@7c460000 {
++                        compatible = "adi,axi-dmac-1.00.a";
++                        reg = <0x7c460000 0x1000>;
++                        #dma-cells = <1>;
++                        interrupts = <0 54 IRQ_TYPE_LEVEL_HIGH>;
++                        clocks = <&clkc 16>;
++
++                        adi,channels {
++                                #size-cells = <0>;
++                                #address-cells = <1>;
++
++                                dma-channel@0 {
++                                        reg = <0>;
++                                        adi,source-bus-width = <64>;
++                                        adi,source-bus-type = <0>;
++                                        adi,destination-bus-width = <32>;
++                                        adi,destination-bus-type = <1>;
++                                };
++                        };
++                };
++
++                custom_dma_d2h_device: axi-iio-dma-d2h@10 {
++                        compatible = "adi,iio-dma-d2h-1.00.a";
++                        dmas = <&custom_dma_d2h 0>;
++                        dma-names = "d2h";
++                };
++
++                custom_dma_h2d_device: axi-iio-dma-h2d@11 {
++                        compatible = "adi,iio-dma-h2d-1.00.a";
++                        dmas = <&custom_dma_h2d 0>;
++                        dma-names = "h2d";
++                };
++
+ 		cf_ad9364_adc_core_0: cf-ad9361-lpc@79020000 {
+ 			compatible = "adi,axi-ad9361-6.00.a";
+ 			reg = <0x79020000 0x6000>;
+diff --git a/arch/arm/configs/zynq_e200_defconfig b/arch/arm/configs/zynq_e200_defconfig
+index 452b8c8ea24d..a6b94dc7ee42 100644
+--- a/arch/arm/configs/zynq_e200_defconfig
++++ b/arch/arm/configs/zynq_e200_defconfig
+@@ -255,6 +255,7 @@ CONFIG_COMMON_CLK_AXI_CLKGEN=y
+ # CONFIG_IOMMU_SUPPORT is not set
+ CONFIG_MEMORY=y
+ CONFIG_IIO=y
++CONFIG_IIO_AXI_DMAC=y
+ CONFIG_ADM1177=y
+ CONFIG_AD9361=y
+ CONFIG_AD9361_EXT_BAND_CONTROL=y
+diff --git a/drivers/iio/Kconfig b/drivers/iio/Kconfig
+index 67ddcf2f241b..ba4bc57d2b8e 100644
+--- a/drivers/iio/Kconfig
++++ b/drivers/iio/Kconfig
+@@ -112,5 +112,6 @@ source "drivers/iio/pressure/Kconfig"
+ source "drivers/iio/proximity/Kconfig"
+ source "drivers/iio/resolver/Kconfig"
+ source "drivers/iio/temperature/Kconfig"
++source "drivers/iio/sw/axi_dmac_driver/Kconfig"
+ 
+ endif # IIO
+diff --git a/drivers/iio/Makefile b/drivers/iio/Makefile
+index 46d867492f66..25940a66f639 100644
+--- a/drivers/iio/Makefile
++++ b/drivers/iio/Makefile
+@@ -48,4 +48,5 @@ obj-y += resolver/
+ obj-y += temperature/
+ obj-y += test/
+ obj-y += trigger/
++obj-y += sw/axi_dmac_driver/
+ 
