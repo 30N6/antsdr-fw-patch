@@ -2,6 +2,7 @@ target=$1
 
 cp -r ./hdl ./plutosdr-fw/hdl/library/
 cp -r ./hdl/e200_pluto_ecm ./plutosdr-fw/hdl/projects/
+cp -r ./hdl/e200_pluto_esm ./plutosdr-fw/hdl/projects/
 
 cp ./patch/*v0.39.patch ./plutosdr-fw/hdl
 cp ./patch/*patch_adi_project_xilinx.patch ./plutosdr-fw/hdl
